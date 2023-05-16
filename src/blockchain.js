@@ -84,7 +84,8 @@ class Blockchain {
                 self.height = self.chain.length - 1;
                 resolve(blockObj);
             }
-           
+            const errors = await this.validateChain();
+            if (errors.length > 0) throw new Error('chain validation failed');
         });
     }
 
@@ -124,8 +125,8 @@ class Blockchain {
         let self = this;
         return new Promise(async (resolve, reject) => {
             let time = parseInt(message.split(':')[1]);
-            let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-            if((time + (5*60*1000)) >= currentTime){
+            let currentTime = Math.floor(new Date().getTime() / 1000);
+            if((time + (5*60)) >= currentTime){
                 // verify the signature
                 let isValid = bitcoinMessage.verify(message, address, signature);
                 if(isValid){
